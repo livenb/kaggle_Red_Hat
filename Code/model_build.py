@@ -13,20 +13,20 @@ def one_run_cv(X, y, model, k_fold=10):
     scores = []
     models = []
     tot_score = 0
-    i = 0
+    i = 1
     for idx_train, idx_test in folds:
-        print 'fold: ', i
-        i += 1
         X_train, y_train = X[idx_train], y[idx_train]
         X_test, y_test = X[idx_test], y[idx_test]
-        model.fit(X_train, y_train, eval_metric='auc', verbose=True)
+        model.fit(X_train, y_train,
+                  eval_metric='auc', verbose=True)
         y_prob = model.predict_proba(X_test)[:, 1]
         # print y_prob
         score = roc_auc_score(y_test, y_prob)
         tot_score += score
         scores.append(score)
         models.append(model)
-        print score
+        print 'fold {}: {}'.format(i, score)
+        i += 1
     tot_score /= k_fold
     idx = np.argmax(score)
     return tot_score, models[idx]
