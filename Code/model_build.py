@@ -33,13 +33,13 @@ def one_run_cv(X, y, model, k_fold=10):
 
 
 def one_run_test(X_train, X_test, y_train, y_test):
-    xgb1 = xgb.XGBClassifier(learning_rate=0.1, n_estimators=500,
+    xgb1 = xgb.XGBClassifier(learning_rate=0.1, n_estimators=20,
                              max_depth=5, min_child_weight=1,
                              subsample=0.8, colsample_bytree=0.8,
                              objective='binary:logistic',
                              scale_pos_weight=1, seed=27,
                              silent=True)
-    score, one_model = one_run_cv(X_train, y_train, xgb1)
+    score, one_model = one_run_cv(X_train, y_train, xgb1, 3)
     print 'Trainning CV scores: ', score
     y_prob = one_model.predict_proba(X_test)
     auc = roc_auc_score(y_test, y_prob)
