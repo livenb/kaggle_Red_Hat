@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cross_validation import KFold, train_test_split
 from sklearn.grid_search import GridSearchCV
-from sklearn.metrics import roc_auc_score, make_scorer
+from sklearn.metrics import roc_auc_score, make_scorer, roc_curve
 import xgboost as xgb
 
 
@@ -71,6 +71,21 @@ def plot_feature_importance(fea_imp, features, num_fea=None):
     plt.show()
 
 
+def plot_roc_curve(y_true, y_prob):
+    tpr, fpr, thretholds = roc_curve(y_true, y_prob)
+    area = roc_auc_score(y_true, y_prob)
+    x = np.arrange(0, 1, 0.05)
+    plt.figure()
+    plt.title('ROC curve')
+    plt.plot(fpr, tpr, label='AUC = %.2f' % area)
+    plt.plot(x, x, 'b--')
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+    plt.xlabel('False Possitive Rate')
+    plt.ylabel('True Possitive Rate')
+    plt.show()
+
+
 def run_grid_search(X, y, features):
     xgb_params = {
                 "n_estimators": 1000,
@@ -93,6 +108,7 @@ def run_grid_search(X, y, features):
     y_prob = model.predict_proba(X_test)
     test_score = roc_auc_score(y_test, y_prob)
     print 'Final Test Score:', test_score
+    plot_roc_curve(y_test, y_prob)
     fea_imp = model.feature_importances_
     plot_feature_importance(fea_imp, features)
     return model
