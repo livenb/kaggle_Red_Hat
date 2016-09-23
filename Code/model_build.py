@@ -41,7 +41,7 @@ def one_run_test(X_train, X_test, y_train, y_test):
                              silent=True)
     score, one_model = one_run_cv(X_train, y_train, xgb1, 3)
     print 'Trainning CV scores: ', score
-    y_prob = one_model.predict_proba(X_test)
+    y_prob = one_model.predict_proba(X_test)[:, 1]
     auc = roc_auc_score(y_test, y_prob)
     print 'test auc: ', auc
 
@@ -105,7 +105,7 @@ def run_grid_search(X, y, features):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     model, grid_scores = grid_search_model(X_train, y_train,
                                            xgb_params, grid_params)
-    y_prob = model.predict_proba(X_test)
+    y_prob = model.predict_proba(X_test)[:, 1]
     test_score = roc_auc_score(y_test, y_prob)
     print 'Final Test Score:', test_score
     plot_roc_curve(y_test, y_prob)
@@ -132,7 +132,7 @@ def main():
     features = train_data.drop(['outcome', 'people_id', 'activity_id'],
                                axis=1).columns
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-    one_run_test(X_train, X_test, y_train, y_test)
+    # one_run_test(X_train, X_test, y_train, y_test)
     model = run_grid_search(X, y, features)
     sub_data = pd.read_csv(test_file)
     make_output(model, sub_data)
