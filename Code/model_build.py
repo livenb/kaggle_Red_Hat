@@ -72,6 +72,63 @@ def tree_nums(X_train, X_test, y_train, y_test):
     plt.show()
 
 
+def gamma_nums(X_train, X_test, y_train, y_test):
+    gammas = [0, 0.005, 0.01, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08,
+              0.1, 0.15, 0.2]
+    scores_train = []
+    scores_var = []
+    for gamma in gammas:
+        print 'gamma numbers: ', gamma
+        xgb1 = xgb.XGBClassifier(learning_rate=0.1, n_estimators=100,
+                                 max_depth=5, min_child_weight=1,
+                                 subsample=0.8, colsample_bytree=0.8,
+                                 objective='binary:logistic',
+                                 scale_pos_weight=1, seed=27,
+                                 nthread=4, gamma=gamma,
+                                 silent=True)
+        score, one_model = one_run_cv(X_train, y_train, xgb1, 5)
+        print 'Trainning CV scores: ', score
+        scores_train.append(score)
+        y_prob = one_model.predict_proba(X_test)[:, 1]
+        auc = roc_auc_score(y_test, y_prob)
+        print 'test auc: ', auc
+        scores_var.append(auc)
+        print '----------------------'
+    plt.figure()
+    plt.plot(gammas, scores_train, 'b-*')
+    plt.plot(gammas, scores_var, 'r-')
+    plt.show()
+
+
+def eta_nums(X_train, X_test, y_train, y_test):
+    lrs = np.arange(0.05, 0.55, 0.05)
+    scores_train = []
+    scores_var = []
+    for lr in lrs:
+        print 'learning rate numbers: ', lr
+        xgb1 = xgb.XGBClassifier(learning_rate=lr, n_estimators=100,
+                                 max_depth=5, min_child_weight=1,
+                                 subsample=0.8, colsample_bytree=0.8,
+                                 objective='binary:logistic',
+                                 scale_pos_weight=1, seed=27,
+                                 nthread=4, gamma=0.1,
+                                 silent=True)
+        score, one_model = one_run_cv(X_train, y_train, xgb1, 5)
+        print 'Trainning CV scores: ', score
+        scores_train.append(score)
+        y_prob = one_model.predict_proba(X_test)[:, 1]
+        auc = roc_auc_score(y_test, y_prob)
+        print 'test auc: ', auc
+        scores_var.append(auc)
+        print '----------------------'
+    plt.figure()
+    plt.title('cross validation for learning rate')
+    plt.plot(lrs, scores_train, 'b-*', label='cv auc')
+    plt.plot(lrs, scores_var, 'r-', label='test auc')
+    plt.legend()
+    plt.show()
+
+
 def grid_search_model(X, y, xgb_params, grid_params, k=10):
     xgb_model = xgb.XGBClassifier(xgb_params)
     grid_model = GridSearchCV(xgb_model, param_grid=grid_params,
@@ -112,18 +169,18 @@ def plot_roc_curve(y_true, y_prob):
     plt.show()
 
 
-def fast_grid_search(X, y, features):
+def run_grid_search(X, y, features):
     xgb_params = {
                 "n_estimators": 200,
                 "objective": "binary:logistic",
                 "eval_metric": "auc",
                 "tree_method": 'exact',
-                "silent": True,
                 "nthread": -1,
+                "learning_rate": 0.1,
+                "gamma": 0.1,
+                "silent": True,
                 }
     grid_params = {
-                'gamma': [0, 0.01, 0.05, 0.08, 0.1, 0.15, 0.2],
-                'learning_rate': np.arange(0.05, 0.55, 0.05),
                 'max_depth': range(3, 12, 2),
                 'min_child_weight': range(1, 10),
                 'subsample': [0.6, 0.8, 1.0],
@@ -131,40 +188,14 @@ def fast_grid_search(X, y, features):
                 }
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     model, grid_scores = grid_search_model(X_train, y_train,
-                                           xgb_params, grid_params, 3)
-    y_prob = model.predict_proba(X_test)[:, 1]
-    test_score = roc_auc_score(y_test, y_prob)
-    fea_imp = model.feature_importances_
-    return model, grid_scores, fea_imp
-
-
-def run_grid_search(X, y, features):
-    xgb_params = {
-                "n_estimators": 1000,
-                "objective": "binary:logistic",
-                "eval_metric": "auc",
-                "tree_method": 'exact',
-                "nthread": -1,
-                "silent": True,
-                }
-    grid_params = {
-                'gamma': [0, 0.01, 0.05, 0.08, 0.1, 0.15, 0.2],
-                'learning_rate': np.arange(0.05, 0.55, 0.05),
-                'max_depth': range(3, 12, 2),
-                'min_child_weight': range(1, 10),
-                'subsample': [0.6, 0.8, 1.0],
-                'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
-                }
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-    model, grid_scores = grid_search_model(X_train, y_train,
-                                           xgb_params, grid_params, 10)
+                                           xgb_params, grid_params, 5)
     y_prob = model.predict_proba(X_test)[:, 1]
     test_score = roc_auc_score(y_test, y_prob)
     print 'Final Test Score:', test_score
-    plot_roc_curve(y_test, y_prob)
-    fea_imp = model.feature_importances_
-    plot_feature_importance(fea_imp, features)
-    return model
+    # plot_roc_curve(y_test, y_prob)
+    # fea_imp = model.feature_importances_
+    # plot_feature_importance(fea_imp, features)
+    return model, grid_scores
 
 
 def make_output(model, data):
@@ -204,8 +235,9 @@ if __name__ == '__main__':
                                axis=1).columns
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     # one_run_test(X_train, X_test, y_train, y_test)
-    # model = run_grid_search(X, y, features)
+    model, grid_scores = run_grid_search(X, y, features)
     # sub_data = pd.read_csv(test_file)
     # make_output(model, sub_data)
     # tree_nums(X_train, X_test, y_train, y_test)
-    fast_model, fast_parms, fast_fea = fast_grid_search(X, y, features)
+    # gamma_nums(X_train, X_test, y_train, y_test)
+    # eta_nums(X_train, X_test, y_train, y_test)
