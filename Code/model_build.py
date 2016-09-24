@@ -46,10 +46,36 @@ def one_run_test(X_train, X_test, y_train, y_test):
     print 'test auc: ', auc
 
 
-def grid_search_model(X, y, xgb_params, grid_params):
+def tree_nums(X_train, X_test, y_train, y_test):
+    trees = [100, 200, 300, 500, 800, 1000]
+    scores_train = []
+    scores_var = []
+    for tree in trees:
+        print 'tree numbers: ', tree
+        xgb1 = xgb.XGBClassifier(learning_rate=0.1, n_estimators=tree,
+                                 max_depth=5, min_child_weight=1,
+                                 subsample=0.8, colsample_bytree=0.8,
+                                 objective='binary:logistic',
+                                 scale_pos_weight=1, seed=27,
+                                 silent=True)
+        score, one_model = one_run_cv(X_train, y_train, xgb1, 5)
+        print 'Trainning CV scores: ', score
+        scores_train.append(score)
+        y_prob = one_model.predict_proba(X_test)[:, 1]
+        auc = roc_auc_score(y_test, y_prob)
+        print 'test auc: ', auc
+        scores_var.append(auc)
+        print '----------------------'
+    plt.figure()
+    plt.plot(trees, scores_train, 'b-*')
+    plt.plot(trees, scores_var, 'r_.')
+    plt.show()
+
+
+def grid_search_model(X, y, xgb_params, grid_params,k=10):
     xgb_model = xgb.XGBClassifier(xgb_params)
     grid_model = GridSearchCV(xgb_model, param_grid=grid_params,
-                              verbose=1, n_jobs=-1, iid=False, cv=10,
+                              verbose=1, n_jobs=-1, iid=False, cv=k,
                               scoring=make_scorer(roc_auc_score))
     grid_model.fit(X, y)
     best_model = grid_model.best_estimator_
@@ -86,12 +112,42 @@ def plot_roc_curve(y_true, y_prob):
     plt.show()
 
 
+def fast_grid_search(X, y, features):
+    xgb_params = {
+                "n_estimators": 200,
+                "objective": "binary:logistic",
+                "eval_metric": "auc",
+                "tree_method": 'exact',
+                "silent": True,
+                "nthread": -1,
+                }
+    grid_params = {
+                'gamma': [0, 0.01, 0.05, 0.08, 0.1, 0.15, 0.2],
+                'learning_rate': np.arange(0.05, 0.55, 0.05),
+                'max_depth': range(3, 12, 2),
+                'min_child_weight': range(1, 10),
+                'subsample': [0.6, 0.8, 1.0],
+                'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
+                }
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    model, grid_scores = grid_search_model(X_train, y_train,
+                                           xgb_params, grid_params, 3)
+    y_prob = model.predict_proba(X_test)[:, 1]
+    test_score = roc_auc_score(y_test, y_prob)
+    print 'Final Test Score:', test_score
+    plot_roc_curve(y_test, y_prob)
+    fea_imp = model.feature_importances_
+    plot_feature_importance(fea_imp, features)
+    return model
+
+
 def run_grid_search(X, y, features):
     xgb_params = {
                 "n_estimators": 1000,
                 "objective": "binary:logistic",
                 "eval_metric": "auc",
                 "tree_method": 'exact',
+                "nthread": -1,
                 "silent": True,
                 }
     grid_params = {
@@ -104,7 +160,7 @@ def run_grid_search(X, y, features):
                 }
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     model, grid_scores = grid_search_model(X_train, y_train,
-                                           xgb_params, grid_params)
+                                           xgb_params, grid_params, 10)
     y_prob = model.predict_proba(X_test)[:, 1]
     test_score = roc_auc_score(y_test, y_prob)
     print 'Final Test Score:', test_score
@@ -139,4 +195,20 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+
+    train_file = '../Data/train.csv'
+    test_file = '../Data/test.csv'
+    # train_data = pd.read_csv(train_file, parse_dates=['date_p', 'date_a'])
+    train_data = pd.read_csv(train_file)
+    X = train_data.drop(['outcome', 'people_id', 'activity_id'], axis=1).values
+    y = train_data['outcome'].values
+    features = train_data.drop(['outcome', 'people_id', 'activity_id'],
+                               axis=1).columns
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    # one_run_test(X_train, X_test, y_train, y_test)
+    # model = run_grid_search(X, y, features)
+    # sub_data = pd.read_csv(test_file)
+    # make_output(model, sub_data)
+    # tree_nums(X_train, X_test, y_train, y_test)
+    fast_model = fast_grid_search(X, y, features)
