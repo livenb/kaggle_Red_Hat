@@ -72,7 +72,7 @@ def tree_nums(X_train, X_test, y_train, y_test):
     plt.show()
 
 
-def grid_search_model(X, y, xgb_params, grid_params,k=10):
+def grid_search_model(X, y, xgb_params, grid_params, k=10):
     xgb_model = xgb.XGBClassifier(xgb_params)
     grid_model = GridSearchCV(xgb_model, param_grid=grid_params,
                               verbose=1, n_jobs=-1, iid=False, cv=k,
@@ -134,11 +134,8 @@ def fast_grid_search(X, y, features):
                                            xgb_params, grid_params, 3)
     y_prob = model.predict_proba(X_test)[:, 1]
     test_score = roc_auc_score(y_test, y_prob)
-    print 'Final Test Score:', test_score
-    plot_roc_curve(y_test, y_prob)
     fea_imp = model.feature_importances_
-    plot_feature_importance(fea_imp, features)
-    return model
+    return model, grid_scores, fea_imp
 
 
 def run_grid_search(X, y, features):
@@ -211,4 +208,4 @@ if __name__ == '__main__':
     # sub_data = pd.read_csv(test_file)
     # make_output(model, sub_data)
     # tree_nums(X_train, X_test, y_train, y_test)
-    fast_model = fast_grid_search(X, y, features)
+    fast_model, fast_parms, fast_fea = fast_grid_search(X, y, features)
