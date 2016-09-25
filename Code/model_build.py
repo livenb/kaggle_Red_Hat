@@ -129,18 +129,6 @@ def eta_nums(X_train, X_test, y_train, y_test):
     plt.show()
 
 
-def grid_search_model(X, y, xgb_params, grid_params, k=10):
-    xgb_model = xgb.XGBClassifier(xgb_params)
-    grid_model = GridSearchCV(xgb_model, param_grid=grid_params,
-                              verbose=1, n_jobs=-1, iid=False, cv=k,
-                              scoring=make_scorer(roc_auc_score))
-    grid_model.fit(X, y)
-    best_model = grid_model.best_estimator_
-    print 'Best Score: ', grid_model.best_score_
-    print 'Best Model Parameters:\n', grid_model.best_params_
-    return best_model, grid_model.grid_scores_
-
-
 def plot_feature_importance(fea_imp, features, num_fea=None):
     if num_fea:
         k = num_fea
@@ -169,6 +157,23 @@ def plot_roc_curve(y_true, y_prob):
     plt.show()
 
 
+def grid_search_model(X, y, xgb_params, grid_params, k=10):
+    xgb_model = xgb.XGBClassifier(xgb_params)
+    grid_model = GridSearchCV(xgb_model, param_grid=grid_params,
+                              verbose=2, n_jobs=-1, iid=False, cv=k,
+                              scoring=make_scorer(roc_auc_score))
+    grid_model.fit(X, y)
+    best_model = grid_model.best_estimator_
+    with open('../log/grid_res.txt', 'a+') as f:
+        f.write('Best Score: %s\n' % (str(grid_model.best_score_)))
+        print 'Best Score: ', grid_model.best_score_
+        f.write('Best Parms: %s\n' % (str(grid_model.best_params_)))
+        print 'Best Model Parameters:\n', grid_model.best_params_
+        for line in grid_model.grid_scores_:
+            f.write(str(line)+'\n')
+    return best_model, grid_model.grid_scores_
+
+
 def run_grid_search(X, y, features):
     xgb_params = {
                 "n_estimators": 200,
@@ -183,10 +188,10 @@ def run_grid_search(X, y, features):
     grid_params = {
                 'max_depth': range(3, 12, 2),
                 'min_child_weight': range(1, 10),
-                'subsample': [0.6, 0.8, 1.0],
-                'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
+                # 'subsample': [0.6, 0.8, 1.0],
+                # 'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
                 }
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
     model, grid_scores = grid_search_model(X_train, y_train,
                                            xgb_params, grid_params, 5)
     y_prob = model.predict_proba(X_test)[:, 1]
