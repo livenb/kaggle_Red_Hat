@@ -160,11 +160,12 @@ def plot_roc_curve(y_true, y_prob):
 def grid_search_model(X, y, xgb_params, grid_params, k=10):
     xgb_model = xgb.XGBClassifier(xgb_params)
     grid_model = GridSearchCV(xgb_model, param_grid=grid_params,
-                              verbose=2, n_jobs=4, iid=False, cv=k,
+                              verbose=2, n_jobs=6, iid=False, cv=k,
                               scoring=make_scorer(roc_auc_score))
     grid_model.fit(X, y)
     best_model = grid_model.best_estimator_
     with open('../log/grid_res.txt', 'a+') as f:
+        f.write('\n******************\n')
         f.write('Best Score: %s\n' % (str(grid_model.best_score_)))
         print 'Best Score: ', grid_model.best_score_
         f.write('Best Parms: %s\n' % (str(grid_model.best_params_)))
@@ -182,14 +183,14 @@ def run_grid_search(X, y, features):
                 "tree_method": 'exact',
                 "nthread": 4,
                 "learning_rate": 0.1,
-                "gamma": 0.1,
+                'min_child_weight': 1,
                 "silent": True,
                 }
     grid_params = {
-                'max_depth': range(3, 12, 2),
-                'min_child_weight': range(1, 10),
-                # 'subsample': [0.6, 0.8, 1.0],
-                # 'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
+                'max_depth': [10, 11, 12, 13],
+                'subsample': [0.6, 0.8, 1.0],
+                'gamma': [0, 0.05, 0.1, 0.15, 0.2],
+                'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0],
                 }
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
     model, grid_scores = grid_search_model(X_train, y_train,
