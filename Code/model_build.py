@@ -160,7 +160,7 @@ def plot_roc_curve(y_true, y_prob):
 def grid_search_model(X, y, xgb_params, grid_params, k=10):
     xgb_model = xgb.XGBClassifier(xgb_params)
     grid_model = GridSearchCV(xgb_model, param_grid=grid_params,
-                              verbose=2, n_jobs=-1, iid=False, cv=k,
+                              verbose=2, n_jobs=4, iid=False, cv=k,
                               scoring=make_scorer(roc_auc_score))
     grid_model.fit(X, y)
     best_model = grid_model.best_estimator_
@@ -180,7 +180,7 @@ def run_grid_search(X, y, features):
                 "objective": "binary:logistic",
                 "eval_metric": "auc",
                 "tree_method": 'exact',
-                "nthread": -1,
+                "nthread": 4,
                 "learning_rate": 0.1,
                 "gamma": 0.1,
                 "silent": True,
