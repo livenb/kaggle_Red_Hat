@@ -165,13 +165,15 @@ def grid_search_model(X, y, xgb_params, grid_params, k=10):
     grid_model.fit(X, y)
     best_model = grid_model.best_estimator_
     with open('../log/grid_res.txt', 'a+') as f:
-        f.write('\n******************\n')
+        f.write('\n****************************\n')
         f.write('Best Score: %s\n' % (str(grid_model.best_score_)))
         print 'Best Score: ', grid_model.best_score_
         f.write('Best Parms: %s\n' % (str(grid_model.best_params_)))
         print 'Best Model Parameters:\n', grid_model.best_params_
+        print '------------------------------\n'
         for line in grid_model.grid_scores_:
             f.write(str(line)+'\n')
+        print '------------------------------\n'
     return best_model, grid_model.grid_scores_
 
 
@@ -182,13 +184,14 @@ def run_grid_search(X, y, features):
                 "eval_metric": "auc",
                 "tree_method": 'exact',
                 "nthread": 4,
+                "learning_rate": 1,
                 # "max_depth": 11,
                 "silent": True,
                 }
     grid_params = {
-                'max_depth': [11],
+                'max_depth': [10, 11, 12],
                 'subsample': [0.5, 0.6, 0.7],
-                'learning_rate': [0.01, 0.1, 0.2, 0.3, 0.4, 0.5],
+                # 'learning_rate': [0.01, 0.1, 0.2, 0.3, 0.4, 0.5],
                 'colsample_bytree': [1.0],
                 'gamma': [0.15, 0.2, 0.3],
                 'min_child_weight': [1],
