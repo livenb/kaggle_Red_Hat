@@ -189,10 +189,10 @@ def run_grid_search(X, y, features):
                 "silent": True,
                 }
     grid_params = {
-                # 'n_estimators': [100, 300, 500, 700, 900, 1100],
+                'n_estimators': [100, 300, 500, 700, 900, 1100, 1300, 1500],
                 'max_depth': [13],
                 'subsample': [0.7],
-                'learning_rate': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+                'learning_rate': [0.7],
                 'colsample_bytree': [1.0],
                 'gamma': [0.3],
                 'min_child_weight': [1],
