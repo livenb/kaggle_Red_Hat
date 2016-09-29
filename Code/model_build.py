@@ -184,16 +184,17 @@ def run_grid_search(X, y, features):
                 "eval_metric": "auc",
                 "tree_method": 'exact',
                 "nthread": 4,
-                # "learning_rate": 1,
-                # "max_depth": 11,
+                # "learning_rate": 0.2,
+                # "max_depth": 13,
                 "silent": True,
                 }
     grid_params = {
-                'max_depth': [12, 13, 14],
+                # 'n_estimators': [100, 300, 500, 700, 900, 1100],
+                'max_depth': [13],
                 'subsample': [0.7],
-                'learning_rate': [0.01, 0.1, 0.15, 0.2],
+                'learning_rate': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
                 'colsample_bytree': [1.0],
-                'gamma': [0.3, 0.4, 0.5],
+                'gamma': [0.3],
                 'min_child_weight': [1],
                 }
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)

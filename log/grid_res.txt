@@ -180,3 +180,26 @@ mean: 0.98366, std: 0.00024, params: {'colsample_bytree': 1.0, 'learning_rate': 
 mean: 0.97892, std: 0.00094, params: {'colsample_bytree': 1.0, 'learning_rate': 0.2, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 12, 'gamma': 0.5}
 mean: 0.98331, std: 0.00037, params: {'colsample_bytree': 1.0, 'learning_rate': 0.2, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.5}
 mean: 0.98617, std: 0.00044, params: {'colsample_bytree': 1.0, 'learning_rate': 0.2, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 14, 'gamma': 0.5}
+
+****************************
+Best Score: 0.988586151947
+Best Parms: {'colsample_bytree': 1.0, 'learning_rate': 0.5, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+------------------------------
+mean: 0.97959, std: 0.00032, params: {'colsample_bytree': 1.0, 'learning_rate': 0.15, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+mean: 0.98324, std: 0.00045, params: {'colsample_bytree': 1.0, 'learning_rate': 0.2, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+mean: 0.98656, std: 0.00031, params: {'colsample_bytree': 1.0, 'learning_rate': 0.3, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+mean: 0.98806, std: 0.00016, params: {'colsample_bytree': 1.0, 'learning_rate': 0.4, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+mean: 0.98859, std: 0.00013, params: {'colsample_bytree': 1.0, 'learning_rate': 0.5, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+------------------------------
+
+****************************
+Best Score: 0.988441482158
+Best Parms: {'colsample_bytree': 1.0, 'learning_rate': 0.7, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+------------------------------
+mean: 0.98838, std: 0.00027, params: {'colsample_bytree': 1.0, 'learning_rate': 0.5, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+mean: 0.98840, std: 0.00014, params: {'colsample_bytree': 1.0, 'learning_rate': 0.6, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+mean: 0.98844, std: 0.00032, params: {'colsample_bytree': 1.0, 'learning_rate': 0.7, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+mean: 0.98804, std: 0.00025, params: {'colsample_bytree': 1.0, 'learning_rate': 0.8, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+mean: 0.98770, std: 0.00023, params: {'colsample_bytree': 1.0, 'learning_rate': 0.9, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+mean: 0.98695, std: 0.00016, params: {'colsample_bytree': 1.0, 'learning_rate': 1.0, 'min_child_weight': 1, 'subsample': 0.7, 'max_depth': 13, 'gamma': 0.3}
+------------------------------
