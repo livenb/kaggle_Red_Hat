@@ -58,6 +58,7 @@ def one_run_test(X_train, X_test, y_train, y_test):
         f.write('\n---------------------\n')
         f.write('The auc score from test:\t{}'.format(auc))
     print 'test auc: ', auc
+    plot_roc_curve(y_prob, y_test)
     return one_model
 
 
@@ -70,20 +71,20 @@ def plot_feature_importance(fea_imp, features, num_fea=None):
     plt.figure()
     plt.title('Feature Importance')
     plt.bar(range(k), fea_imp[idx][:k], align="center")
-    plt.xticks(range(k), features[idx][:k])
+    plt.xticks(range(k), features[idx][:k], rotation=30)
     plt.savefig('../Img/fea_imp.png', dpi=300)
 
 
 def plot_roc_curve(y_true, y_prob):
-    tpr, fpr, thretholds = roc_curve(y_true, y_prob)
+    fpr, tpr, thretholds = roc_curve(y_true, y_prob)
     area = roc_auc_score(y_true, y_prob)
     x = np.arange(0, 1, 0.05)
     plt.figure()
     plt.title('ROC curve')
-    plt.plot(fpr, tpr, label='AUC = %.2f' % area)
-    plt.plot(x, x, 'b--')
-    plt.xlim(0, 1)
-    plt.ylim(0, 1)
+    plt.plot(fpr, tpr, linewidth=4, label='AUC = %.2f' % area)
+    plt.plot(x, x, 'k--')
+    plt.xlim(-0.05, 1.05)
+    plt.ylim(-0.05, 1.05)
     plt.xlabel('False Possitive Rate')
     plt.ylabel('True Possitive Rate')
     plt.savefig('../Img/roc.png', dpi=300)
