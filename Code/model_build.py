@@ -17,24 +17,29 @@ def one_run_cv(X, y, model, k_fold=10):
     tot_score = 0
     pbar = tqdm(total=k_fold)
     i = 1
-    print 'training.....'
-    for idx_train, idx_test in folds:
-        X_train, y_train = X[idx_train], y[idx_train]
-        X_test, y_test = X[idx_test], y[idx_test]
-        model.fit(X_train, y_train,
-                  eval_metric='auc', 
-                  early_stopping_rounds=50,
-                  verbose=True)
-        y_prob = model.predict_proba(X_test)[:, 1]
-        # print y_prob
-        score = roc_auc_score(y_test, y_prob)
-        tot_score += score
-        scores.append(score)
-        models.append(model)
-        pbar.update(1)
-        i += 1
-        print 'fold {}: {}'.format(i, score)
-    tot_score /= k_fold
+    with open('../log/result.log', 'a+') as f:
+        f.write('**********************\n')
+        f.write('The result of with parameters:\n')
+        f.write("learning_rate=0.7, n_estimators=1000, gamma=0.3, max_depth=14, min_child_weight=1,subsample=0.6, colsample_bytree=1.0, objective='binary:logistic', scale_pos_weight=1")
+        for idx_train, idx_test in folds:
+            X_train, y_train = X[idx_train], y[idx_train]
+            X_test, y_test = X[idx_test], y[idx_test]
+            model.fit(X_train, y_train,
+                      eval_metric='auc', 
+                      # early_stopping_rounds=50,
+                      verbose=True)
+            y_prob = model.predict_proba(X_test)[:, 1]
+            # print y_prob
+            score = roc_auc_score(y_test, y_prob)
+            tot_score += score
+            scores.append(score)
+            models.append(model)
+            pbar.update(1)
+            f.write('\nfold {}: {}\n'.format(i, score))
+            i += 1
+        f.write('------------------------\n')
+        tot_score /= k_fold
+        f.write('The auc score from training:\t{}'.format(tot_score))
     idx = np.argmax(score)
     return tot_score, models[idx]
 
@@ -47,9 +52,11 @@ def one_run_test(X_train, X_test, y_train, y_test):
                              objective='binary:logistic',
                              scale_pos_weight=1)
     score, one_model = one_run_cv(X_train, y_train, xgb1, 10)
-    print 'Trainning CV scores: ', score
     y_prob = one_model.predict_proba(X_test)[:, 1]
     auc = roc_auc_score(y_test, y_prob)
+    with open('../log/result.log', 'a+') as f:
+        f.write('\n---------------------\n')
+        f.write('The auc score from test:\t{}'.format(auc))
     print 'test auc: ', auc
     return one_model
 
@@ -70,7 +77,7 @@ def plot_feature_importance(fea_imp, features, num_fea=None):
 def plot_roc_curve(y_true, y_prob):
     tpr, fpr, thretholds = roc_curve(y_true, y_prob)
     area = roc_auc_score(y_true, y_prob)
-    x = np.arrange(0, 1, 0.05)
+    x = np.arange(0, 1, 0.05)
     plt.figure()
     plt.title('ROC curve')
     plt.plot(fpr, tpr, label='AUC = %.2f' % area)
