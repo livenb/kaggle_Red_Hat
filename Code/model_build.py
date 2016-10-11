@@ -7,6 +7,7 @@ from sklearn.cross_validation import KFold, train_test_split
 from sklearn.metrics import roc_auc_score, make_scorer, roc_curve
 from tqdm import tqdm
 import xgboost as xgb
+import pickle
 
 
 def one_run_cv(X, y, model, k_fold=10):
@@ -25,7 +26,7 @@ def one_run_cv(X, y, model, k_fold=10):
             X_train, y_train = X[idx_train], y[idx_train]
             X_test, y_test = X[idx_test], y[idx_test]
             model.fit(X_train, y_train,
-                      eval_metric='auc', 
+                      eval_metric='auc',
                       # early_stopping_rounds=50,
                       verbose=True)
             y_prob = model.predict_proba(X_test)[:, 1]
@@ -53,6 +54,8 @@ def one_run_test(X_train, X_test, y_train, y_test):
                              scale_pos_weight=1)
     score, one_model = one_run_cv(X_train, y_train, xgb1, 10)
     y_prob = one_model.predict_proba(X_test)[:, 1]
+    with open('model.pkl', 'w+') as pf:
+        pickle.dump(one_model, pf)
     auc = roc_auc_score(y_test, y_prob)
     with open('../log/result.log', 'a+') as f:
         f.write('\n---------------------\n')
@@ -71,7 +74,7 @@ def plot_feature_importance(fea_imp, features, num_fea=None):
     plt.figure()
     plt.title('Feature Importance')
     plt.bar(range(k), fea_imp[idx][:k], align="center")
-    plt.xticks(range(k), features[idx][:k], rotation=30)
+    plt.xticks(range(k), features[idx][:k], rotation=90)
     plt.savefig('../Img/fea_imp.png', dpi=300)
 
 
@@ -108,5 +111,5 @@ if __name__ == '__main__':
                                axis=1).columns
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     model = one_run_test(X_train, X_test, y_train, y_test)
-    fea_imp = model.plot_feature_importances_
+    fea_imp = model.feature_importances_
     plot_feature_importance(fea_imp, features, num_fea=10)
