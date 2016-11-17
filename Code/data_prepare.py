@@ -12,7 +12,7 @@ def trans_char_people(df):
     df['month'] = df['date'].dt.month
     df['year'] = df['date'].dt.year
     df['day'] = df['date'].dt.day
-    df = df.drop(['date'], axis=1)
+    # df = df.drop(['date'], axis=1)
     return df
 
 
@@ -26,7 +26,7 @@ def trans_char_activity(df):
     df['month'] = df['date'].dt.month
     df['year'] = df['date'].dt.year
     df['day'] = df['date'].dt.day
-    df = df.drop(['date'], axis=1)
+    # df = df.drop(['date'], axis=1)
     return df
 
 
@@ -44,6 +44,7 @@ def combine_data(p_file, a_file):
                             left_on='people_id',
                             right_on='people_id',
                             suffixes=['_a', '_p'])
+    new_df['days_diff'] = (new_df['date_a'] - new_df['date_p']).apply(lambda x: x.days)
     return new_df
 
 
